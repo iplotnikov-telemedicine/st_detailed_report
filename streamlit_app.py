@@ -92,12 +92,12 @@ def refresh_report() -> None:
 
 
 @st.cache_data
-def update_nodes(nodes, cp) -> list:
+def update_nodes(cp) -> list:
     for section in cp['section_name'].unique().tolist():
-        nodes[0]["children"].append({"label": section, "value": section, "children": []})
+        NODES[0]["children"].append({"label": section, "value": section, "children": []})
         for field in cp[cp['section_name'] == section]['field_name'].unique().tolist():
-            nodes[0]["children"][-1]["children"].append({"label": field, "value": field}) 
-    return nodes
+            NODES[0]["children"][-1]["children"].append({"label": field, "value": field}) 
+    return NODES
 
 
 def adjust_sidebar_padding():
@@ -130,11 +130,11 @@ cp = generate_custom_profile()
 if 'job_position_id' in st.query_params:
     org_id = get_data('rls.sql', job_position_id=st.query_params.job_position_id)['organisation_id'][0]
     df = df[df['organisation_id'] == org_id]
-    cp = cp[cp['organisation_id'] == org_id]
-    nodes = update_nodes(NODES, cp)
-    df = pivot_and_merge(df, cp)  
+    cp_filtered = cp[cp['organisation_id'] == org_id]
+    df = pivot_and_merge(df, cp_filtered)
 else:
-    nodes = NODES
+    cp_filtered = DataFrame(columns=cp.columns)
+nodes = update_nodes(cp_filtered)
 
 
 st.session_state.df = df
