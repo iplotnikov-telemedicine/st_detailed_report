@@ -1,0 +1,73 @@
+/* adjust_sidebar_padding */
+div[data-testid="stSidebarUserContent"]{
+    padding-top: 48px;
+    padding-right: 12px;
+    padding-left: 12px;
+}
+
+/* increase_space_between_tabs */
+div[data-baseweb="tab-panel"]{
+    padding-top: 40px;
+}
+
+div[data-testid="stAppViewBlockContainer"]{
+    padding-top: 4rem;
+}
+
+div[data-baseweb="tab-list"]{
+    gap: 2rem;
+}
+
+button[data-baseweb="tab"] > div[data-testid="stMarkdownContainer"] > p{
+    word-break: break-word;
+    margin-bottom: 1em;
+    font-size: 16px;
+}
+
+/* hide_image_icon */
+button[title="View fullscreen"]{visibility: hidden;}
+
+/* stylize_plotly_charts */
+div[data-testid="stVerticalBlockBorderWrapper"]{
+    padding: 12px;
+}
+
+/* div[data-testid="stHorizontalBlock"] {
+    align-items: center;
+} */
+
+section[tabindex="0"]  div[data-testid="stHorizontalBlock"]{
+    gap: 0rem;
+}
+
+section[tabindex="0"]  div[data-testid="stVerticalBlock"]:not(div[data-testid="stHorizontalBlock"] div[data-testid="stVerticalBlock"]) {
+    gap: 0rem;
+}
+
+section[tabindex="0"]  div[data-testid="stVerticalBlock"]:not(div[data-testid="stVerticalBlock"] div[data-testid="stVerticalBlock"]) {
+    gap: 0.5rem;
+}
+
+div[data-testid="stSidebarUserContent"]{
+    padding-left: 6px;
+    padding-right: 6px;
+}
+
+div[data-testid="stExpanderDetails"]{
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+.st-emotion-cache-r421ms {
+    /* Your shadow style */
+    border: none;
+    box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.25);
+}
+
+div[data-testid="stAppViewBlockContainer"]{
+    padding: 40px;
+}
+
+.modebar{
+    display: none !important;
+}

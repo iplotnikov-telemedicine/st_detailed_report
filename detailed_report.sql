@@ -1,2 +1,2 @@
 SELECT * 
-FROM st_generate_detailed_report()
+FROM detailed_report

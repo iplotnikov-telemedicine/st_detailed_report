@@ -1,8 +1,13 @@
 import streamlit as st
+import os
 import datetime
 from pandas import DataFrame
-from streamlit_tree_select import tree_select
 from nodes import NODES
+# import altair as alt
+from default_dashboard import display_default_dashboard
+from additional_information import display_additional_information
+from detailed_report import display_detailed_report
+import plotly.io as pio
 from pandas.api.types import (
     is_categorical_dtype,
     is_datetime64_any_dtype,
@@ -12,6 +17,12 @@ from pandas.api.types import (
 
 
 st.set_page_config(page_title="Detailed Report", layout="wide", initial_sidebar_state="expanded", page_icon="icon.png")
+pio.templates.default = "plotly"
+curdir = os.path.dirname(os.path.realpath(__file__)) + '\\'
+css_file = os.path.join(curdir, r'style.css')
+with open(css_file, encoding='utf8') as f:
+    css_style = f.read()
+st.markdown('''<style>%s</style>''' % (css_style), unsafe_allow_html=True)
 conn = st.connection("postgresql", type="sql")
 
 
@@ -100,29 +111,6 @@ def update_nodes(cp) -> list:
     return NODES
 
 
-def adjust_sidebar_padding():
-    st.markdown(
-        """
-        <style>
-        div[data-testid="stSidebarUserContent"]{padding-top: 48px;}
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
-
-
-def put_logo(img_file):
-    st.image(img_file)
-    st.markdown(
-        '''
-        <style>
-        button[title="View fullscreen"]{visibility: hidden;}
-        </style>
-        ''', 
-        unsafe_allow_html=True
-    )
-
-
 df = generate_detailed_report()
 cp = generate_custom_profile()
 
@@ -143,55 +131,17 @@ if 'df_filtered' not in st.session_state:
 all_cols = [column['value'] for node in nodes for section in node.get('children') for column in section.get('children')]
 
 
-col1, col2, col3, col4 = st.columns([3, 1, 1, 1])
-with col1:
-    put_logo('logo.svg')
-with col2:
-    st.metric('Total Users', value=st.session_state.df_filtered['Email'].nunique(), help='Number of unique emails')
-with col3:
-    st.metric('Total Records', value=len(st.session_state.df_filtered), help='Number of records')
-with col4:  
-    with st.popover(
-        'Select Columns', 
-        help='Select the columns you want to be part of the report', 
-        disabled=False, 
-        use_container_width=False
-    ):
-        if 'selected_cols' in st.session_state and st.session_state.selected_cols:
-            checked = st.session_state.selected_cols['checked']
-        else:
-            checked = all_cols
-        selected_cols = tree_select(
-            nodes, 
-            show_expand_all=True,
-            check_model='leaf',
-            expanded=[node['value'] for node in nodes],
-            checked=checked,
-            key='selected_cols'
-        )
 
-st.markdown("#")
-if not st.session_state.df_filtered.empty and selected_cols['checked']:
-    cols_to_show = ['Email'] + selected_cols['checked']
-    st.dataframe(
-        st.session_state.df_filtered[cols_to_show].set_index('Email'), 
-        hide_index=False,
-        use_container_width=True, 
-    )
-else:
-    st.markdown(
-        '''
-        <div style="text-align: center; color: #758586; margin-top: 30px;">
-            <p style="font-size: 20px;">Nothing to show 😟</p>
-        </div>
-        ''', 
-        unsafe_allow_html=True
-    )
-
-# {k:v for k, v in st.session_state.items() if 'df' not in k}
+default_tab, additional_tab, detailed_tab = st.tabs(['Default Dashboard', 'Additional Information', 'Detailed Report'])
+with default_tab:
+    display_default_dashboard(st.session_state.df_filtered)
+with additional_tab:
+    display_additional_information()
+with detailed_tab:
+    display_detailed_report(nodes, all_cols)
+    
 
 with st.sidebar:
-    adjust_sidebar_padding()
     filter_search = st.text_input('Search Filters', value="", placeholder='Search Filters', label_visibility='collapsed')
     for node in nodes:
         all = node.get('children')
@@ -232,6 +182,3 @@ with st.sidebar:
                                 format_func=lambda x: '(Blank)' if x is None else x,
                                 on_change=refresh_report
                             )
-
-# for row in st.session_state.df.itertuples():
-    # st.write(f"{row.first_name} has email {row.email}:")
